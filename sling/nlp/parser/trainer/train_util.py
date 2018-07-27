@@ -25,13 +25,29 @@ from spec import Spec
 # Evaluates gold vs test documents, which are assumed to be aligned,
 # and returns a dict of their results.
 def frame_evaluation(gold_corpus_path, test_corpus_path, commons_path):
+  #try:
+  #  output = subprocess.check_output(
+  #      ['bazel-bin/sling/nlp/parser/tools/evaluate-frames',
+  #       '--gold_documents=' + gold_corpus_path,
+  #       '--test_documents=' + test_corpus_path,
+  #       '--commons=' + commons_path],
+  #      stderr=subprocess.STDOUT)
+  #except subprocess.CalledProcessError as e:
+  #  print("Evaluation failed: ", e.returncode, e.output)
+  #  return {'eval_metric': 0.0}
+
+  # Run official CoNLL eval.
   try:
-    output = subprocess.check_output(
-        ['bazel-bin/sling/nlp/parser/tools/evaluate-frames',
-         '--gold_documents=' + gold_corpus_path,
-         '--test_documents=' + test_corpus_path,
-         '--commons=' + commons_path],
-        stderr=subprocess.STDOUT)
+    child = subprocess.Popen(
+      'python ./scripts/sling_to_conll.py {}'.format(test_corpus_path),
+      shell=True, stdout=subprocess.PIPE)
+    eval_info = child.communicate()[0]
+    print (eval_info)
+    f1 = eval_info.split('\n')[-2].strip().split()
+    return {'CoNLL_Precision': float(f1[-5]),
+            'CoNLL_Recall': float(f1[-3]),
+            'CoNLL_F1': float(f1[-1]),
+            'eval_metric': float(f1[-1])}
   except subprocess.CalledProcessError as e:
     print("Evaluation failed: ", e.returncode, e.output)
     return {'eval_metric': 0.0}

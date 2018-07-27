@@ -219,7 +219,7 @@ class Losses:
       self.losses[delegate_index] = [Var(torch.Tensor([0.0])), 0]
     self.losses[delegate_index][0] += step_loss
     self.losses[delegate_index][1] += count
-    
+ 
   # Adds losses in 'other' to itself.
   def aggregate(self, other):
     for delegate, value in other.losses.iteritems():
@@ -430,9 +430,9 @@ class Caspar(nn.Module):
 
       # Figure out where we need to pick the activations from.
       activations = ff_activations
-      if f.name == "lr" or f.name == "frame-end-lr":
+      if f.name == "lr" or f.name == "frame-end-lr" or f.name == "frame-start-lr":
         activations = lr_lstm_output
-      elif f.name == "rl" or f.name == "frame-end-rl":
+      elif f.name == "rl" or f.name == "frame-end-rl" or f.name == "frame-start-rl":
         activations = rl_lstm_output
 
       # Get indices into the activations. Recall that missing indices are
@@ -618,9 +618,9 @@ class Caspar(nn.Module):
 
       activations = None
       n = feature.name
-      if n == "frame-end-lr" or n == "lr":
+      if n == "frame-end-lr" or n == "lr" or n == "frame-start-lr":
         activations = ff_lr
-      elif n == "frame-end-rl" or n == "rl":
+      elif n == "frame-end-rl" or n == "rl" or n == "frame-start-rl":
         activations = ff_rl
       elif n in ["frame-creation-steps", "frame-focus-steps", "history"]:
         activations = ff_steps

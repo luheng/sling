@@ -120,10 +120,13 @@ class Spec:
       # Link feature dimensionalities.
       self.link_dim_lstm = 8
       self.link_dim_non_lstm = 10
+
+      # Lookahead LSTM feature.
+      self.future_limit = 10
     else:
       # Network dimensionalities.
       self.lstm_hidden_dim = 256
-      self.ff_hidden_dim = 128
+      self.ff_hidden_dim = 512 # FIXME: original: 128
 
       # Fixed feature dimensionalities.
       self.oov_features = True
@@ -136,11 +139,14 @@ class Spec:
       self.history_limit = 4
 
       # Frame limit for other link features.
-      self.frame_limit = 5
+      self.frame_limit = 8  # TODO: original: 5
 
       # Link feature dimensionalities.
-      self.link_dim_lstm = 32
-      self.link_dim_non_lstm = 64
+      self.link_dim_lstm = 64  # 32
+      self.link_dim_non_lstm = 32  # 64
+
+      # Lookahead LSTM feature.
+      self.future_limit = 20
 
     # Resources.
     self.commons = None
@@ -171,6 +177,8 @@ class Spec:
 
     self.actions.prune(self.actions_percentile)
     self.num_actions = self.actions.size()
+    for action in self.actions.table:
+      print action
     print self.num_actions, "gold actions"
 
     allowed = self.num_actions - sum(self.actions.disallowed)
@@ -278,11 +286,13 @@ class Spec:
 
     self.add_ff_link("frame-creation-steps", self.link_dim_non_lstm, self.ff_hidden_dim, fl)
     self.add_ff_link("frame-focus-steps", self.link_dim_non_lstm, self.ff_hidden_dim, fl)
+    self.add_ff_link("frame-start-lr", self.link_dim_lstm, self.lstm_hidden_dim, fl)
+    self.add_ff_link("frame-start-rl", self.link_dim_lstm, self.lstm_hidden_dim, fl)
     self.add_ff_link("frame-end-lr", self.link_dim_lstm, self.lstm_hidden_dim, fl)
     self.add_ff_link("frame-end-rl", self.link_dim_lstm, self.lstm_hidden_dim, fl)
     self.add_ff_link("history", self.link_dim_non_lstm, self.ff_hidden_dim, self.history_limit)
-    self.add_ff_link("lr", self.link_dim_lstm, self.lstm_hidden_dim, 1)
-    self.add_ff_link("rl", self.link_dim_lstm, self.lstm_hidden_dim, 1)
+    self.add_ff_link("lr", self.link_dim_lstm, self.lstm_hidden_dim, self.future_limit)
+    self.add_ff_link("rl", self.link_dim_lstm, self.lstm_hidden_dim, self.future_limit)
 
     self.ff_input_dim = sum([f.dim for f in self.ff_fixed_features])
     self.ff_input_dim += sum(
@@ -499,24 +509,22 @@ class Spec:
     if name == "history":
       for i in xrange(num):
         output.append(None if i >= state.steps else state.steps - i - 1)
-    elif name == "lr":
-      index = None
-      if state.current < state.end:
-        index = state.current - state.begin
-      output.append(index)
-    elif name == "rl":
-      index = None
-      if state.current < state.end:
-        index = state.current - state.begin
-      output.append(index)
-    elif name == "frame-end-lr":
+    # Add BiLSTM outputs based on position.
+    elif name == "lr" or name == "rl":
       for i in xrange(num):
         index = None
-        end = state.frame_end_inclusive(i)
-        if end != -1:
-          index = end - state.begin
+        if state.current < state.end:
+          index = state.current - state.begin
         output.append(index)
-    elif name == "frame-end-rl":
+    # Include frame-begin feature for PropBank SRL.
+    elif name == "frame-start-lr" or name == "frame-start-rl":
+      for i in xrange(num):
+        index = None
+        begin = state.attention[i].start if i < len(state.attention) else -1
+        if begin != -1:
+          index = begin - state.begin
+        output.append(index)
+    elif name == "frame-end-lr" or name == "frame-end-rl":
       for i in xrange(num):
         index = None
         end = state.frame_end_inclusive(i)
