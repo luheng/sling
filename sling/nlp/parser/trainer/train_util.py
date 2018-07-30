@@ -25,16 +25,26 @@ from spec import Spec
 # Evaluates gold vs test documents, which are assumed to be aligned,
 # and returns a dict of their results.
 def frame_evaluation(gold_corpus_path, test_corpus_path, commons_path):
-  #try:
-  #  output = subprocess.check_output(
-  #      ['bazel-bin/sling/nlp/parser/tools/evaluate-frames',
-  #       '--gold_documents=' + gold_corpus_path,
-  #       '--test_documents=' + test_corpus_path,
-  #       '--commons=' + commons_path],
-  #      stderr=subprocess.STDOUT)
-  #except subprocess.CalledProcessError as e:
-  #  print("Evaluation failed: ", e.returncode, e.output)
+  try:
+    output = subprocess.check_output(
+        ['bazel-bin/sling/nlp/parser/tools/evaluate-frames',
+         '--gold_documents=' + gold_corpus_path,
+         '--test_documents=' + test_corpus_path,
+         '--commons=' + commons_path],
+        stderr=subprocess.STDOUT)
+  except subprocess.CalledProcessError as e:
+    print("Evaluation failed: ", e.returncode, e.output)
   #  return {'eval_metric': 0.0}
+
+  eval_output = {}
+  for line in output.splitlines():
+    line = line.rstrip()
+    print "Evaluation Metric: ", line
+    parts = line.split('\t')
+    assert len(parts) == 2, "%r" % line
+    eval_output[parts[0]] = float(parts[1])
+    #if line.startswith("SLOT_F1"):
+    #  eval_output['eval_metric'] = float(parts[1])
 
   # Run official CoNLL eval.
   try:
@@ -44,26 +54,17 @@ def frame_evaluation(gold_corpus_path, test_corpus_path, commons_path):
     eval_info = child.communicate()[0]
     print (eval_info)
     f1 = eval_info.split('\n')[-2].strip().split()
-    return {'CoNLL_Precision': float(f1[-5]),
-            'CoNLL_Recall': float(f1[-3]),
-            'CoNLL_F1': float(f1[-1]),
-            'eval_metric': float(f1[-1])}
+    eval_output['CoNLL_Precision'] = float(f1[-5])
+    eval_output['CoNLL_Recall'] = float(f1[-3])
+    eval_output['CoNLL_F1'] = float(f1[-1])
+    eval_output['eval_metric'] = float(f1[-1])
   except subprocess.CalledProcessError as e:
     print("Evaluation failed: ", e.returncode, e.output)
     return {'eval_metric': 0.0}
 
-  eval_output = {}
-  for line in output.splitlines():
-    line = line.rstrip()
-    print "Evaluation Metric: ", line
-    parts = line.split('\t')
-    assert len(parts) == 2, "%r" % line
-    eval_output[parts[0]] = float(parts[1])
-    if line.startswith("SLOT_F1"):
-      eval_output['eval_metric'] = float(parts[1])
-
   assert eval_output.has_key('eval_metric'), "%r" % str(eval_output)
   return eval_output
+
 
 
 # Methods for returning date and memory usage respectively.
