@@ -513,8 +513,8 @@ class Spec:
     elif name == "lr" or name == "rl":
       for i in xrange(num):
         index = None
-        if state.current < state.end:
-          index = state.current - state.begin
+        if state.current + i < state.end:
+          index = state.current + i - state.begin
         output.append(index)
     # Include frame-begin feature for PropBank SRL.
     elif name == "frame-start-lr" or name == "frame-start-rl":
