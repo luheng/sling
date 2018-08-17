@@ -14,17 +14,14 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('train_input',
                     'ontonotes_data/train.english.mtl.jsonlines',
-                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/train.english.mtl.jsonlines',
                     'Json-formatted training data.')
 
 flags.DEFINE_string('dev_input',
                     'ontonotes_data/dev.english.mtl.jsonlines',
-                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/dev.english.mtl.jsonlines',
                     'Json-formatted development data.')
 
 flags.DEFINE_string('test_input',
                     'ontonotes_data/test.english.mtl.jsonlines',
-                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/test.english.mtl.jsonlines',
                     'Json-formatted test data.')
 
 flags.DEFINE_boolean('remove_v_args', 1,
