@@ -13,18 +13,18 @@ import sling
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string('train_input',
-                    #'ontonotes_data/train.english.mtl.jsonlines',
-                    '/usr/local/google/home/luheng/SRL/LSGN/data/srl/train.english.mtl.jsonlines',
+                    'ontonotes_data/train.english.mtl.jsonlines',
+                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/train.english.mtl.jsonlines',
                     'Json-formatted training data.')
 
 flags.DEFINE_string('dev_input',
-                    #'ontonotes_data/dev.english.mtl.jsonlines',
-                    '/usr/local/google/home/luheng/SRL/LSGN/data/srl/dev.english.mtl.jsonlines',
+                    'ontonotes_data/dev.english.mtl.jsonlines',
+                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/dev.english.mtl.jsonlines',
                     'Json-formatted development data.')
 
 flags.DEFINE_string('test_input',
-                    #'ontonotes_data/test.english.mtl.jsonlines',
-                    '/usr/local/google/home/luheng/SRL/LSGN/data/srl/test.english.mtl.jsonlines',
+                    'ontonotes_data/test.english.mtl.jsonlines',
+                    #'/usr/local/google/home/luheng/SRL/LSGN/data/srl/test.english.mtl.jsonlines',
                     'Json-formatted test data.')
 
 flags.DEFINE_boolean('remove_v_args', 1,
@@ -162,7 +162,8 @@ def ConvertData(input_path, output_path, commons_path, conll_output_path=None):
         # Write SRL info to SLING record.
         for pred_id, arg_start, arg_end, role in srl_info:
           role = str(role)
-          if FLAGS.remove_v_args and role == '/pb/V':
+          if FLAGS.remove_v_args and role == 'V':
+            print ('Removed V args')
             continue
           # Add argument evoke to default /saft/arg or /pb/argument
           arg_frame = store.frame({isa: commons['/pb/argument']})

@@ -130,7 +130,7 @@ class Spec:
 
       # Fixed feature dimensionalities.
       self.oov_features = True
-      self.words_dim = 32
+      self.words_dim = 100 # FIXME: original: 32 (word2vec)
       self.suffixes_dim = 16
       self.fallback_dim = 8  # dimensionality of each fallback feature
       self.roles_dim = 16
@@ -142,11 +142,11 @@ class Spec:
       self.frame_limit = 8  # TODO: original: 5
 
       # Link feature dimensionalities.
-      self.link_dim_lstm = 64  # 32
+      self.link_dim_lstm = 64      # 32
       self.link_dim_non_lstm = 32  # 64
 
       # Lookahead LSTM feature.
-      self.future_limit = 20
+      self.future_limit = 20 #  1
 
     # Resources.
     self.commons = None

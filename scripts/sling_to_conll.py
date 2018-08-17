@@ -49,7 +49,6 @@ def RetrieveSRL(doc, commons):
         predicate_id = mention.begin
         predicates[predicate_id] = frame_type.split('/')[-1]
         arguments[predicate_id] = []
-        # print ("Predicate", predicate_id, frame_type)
 
   for mention in doc.mentions:
     start = mention.begin
@@ -63,7 +62,6 @@ def RetrieveSRL(doc, commons):
           if slot != isa:
             assert value in frame_to_id
             role = str(slot).split('/')[-1]
-            # print ("Argument", frame_to_id[value], slot)
             arg_start, arg_end = id_to_span[frame_to_id[value]]
             arguments[start].append((arg_start, arg_end, role))
 
@@ -122,7 +120,7 @@ def PrintToCoNLL(all_tokens, all_predicates, all_arguments, conll_output_path,
         else:
           # Will be counted as false positive.
           # So doesn't really matter what we put here.
-          pred_column[pred_id] = sense
+          pred_column[pred_id] = 'P' + all_tokens[sent_id][pred_id]
         # Initialize argument columns.
         arg_columns[pred_id] = ['*' for _  in sentence]
         arg_columns[pred_id][pred_id] = '(V*)'
