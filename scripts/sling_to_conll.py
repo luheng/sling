@@ -8,6 +8,7 @@ from __future__ import print_function
 from absl import app
 from absl import flags
 from collections import Iterable
+import os
 import sling
 import subprocess
 
@@ -176,7 +177,7 @@ def main(argv):
   if len(argv) > 2:
     raise app.UsageError('Too many command-line arguments.')
   sling_prediction_file = argv[1]
-  temp_output = '/tmp/sling.out.conll'
+  temp_output = '/tmp/sling.{}.out.conll'.format(os.getpid())
   SlingToCoNLL(sling_prediction_file, _GOLD_CONLL_FILE, temp_output)
 
   # Evalute twice with official script.
