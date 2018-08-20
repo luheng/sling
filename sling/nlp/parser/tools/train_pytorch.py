@@ -115,9 +115,11 @@ class Trainer:
     self.evaluator = evaluator
     self.hyperparams = hyperparams
 
+    trainable_parameters = filter(lambda p: p.requires_grad,
+                                  caspar.parameters())
     if hyperparams.optimizer == "sgd":
       self.optimizer = torch.optim.SGD(
-        caspar.parameters(),
+        trainable_parameters,
         lr=self.hyperparams.alpha,
         momentum=0,
         dampening=0,
@@ -125,7 +127,7 @@ class Trainer:
         nesterov=False)
     elif hyperparams.optimizer == "adam":
       self.optimizer = torch.optim.Adam(
-          caspar.parameters(), lr=hyperparams.alpha, weight_decay=0, \
+          trainable_parameters, lr=hyperparams.alpha, weight_decay=0, \
               betas=(hyperparams.adam_beta1, hyperparams.adam_beta2), \
               eps=hyperparams.adam_eps)
     else:

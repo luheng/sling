@@ -331,6 +331,10 @@ class Caspar(nn.Module):
         print "Overwrote", len(self.spec.word_embeddings), f.name, \
             "embedding vectors with normalized pre-trained vectors."
 
+        # Fix word embeddings during training.
+        if self.spec.fix_word_embeddings:
+          f.embedding.weight.requires_grad = False
+
     # Initialize the FF's fixed and link embeddings like those in the LSTMs.
     for f in self.spec.ff_fixed_features:
       f.bag.weight.data.normal_()
