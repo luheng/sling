@@ -100,7 +100,7 @@ class Spec:
     self.actions_percentile = 99
 
     # Word embedding hyper-parameters.
-    self.fix_word_embeddings = True
+    self.fix_word_embeddings = False
 
     if small:
       # Network dimensionalities.
